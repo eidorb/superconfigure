@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+
+# Set up aliases for Cosmopolitan tools
+alias strip="$STRIP"
+alias ar="$AR"
+
+# Navigate to the extracted source directory
+cd "$BASELOC"/o/web/git-crypt/git-crypt-*/
+
+# Build git-crypt with Cosmopolitan toolchain
+# The Makefile respects CXX, CXXFLAGS, LDFLAGS from environment
+make \
+    CXX="$CXX" \
+    CXXFLAGS="-Wall -O2 -std=c++11 -fexceptions -I$COSMOS/include" \
+    LDFLAGS="-L$COSMOS/lib" \
+    PREFIX="$COSMOS" \
+    -j"$MAXPROC"
+
+# Install the binary
+make install \
+    PREFIX="$COSMOS" \
+    BINDIR="$COSMOS/bin"
