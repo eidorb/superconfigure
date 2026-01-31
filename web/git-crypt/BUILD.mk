@@ -1,6 +1,5 @@
 
-# Can use v0.8.0 once OpenSSL 3 supported
-GIT_CRYPT_SRC := https://github.com/AGWA/git-crypt/archive/refs/tags/0.7.0.tar.gz
+GIT_CRYPT_SRC := https://github.com/AGWA/git-crypt/archive/refs/tags/0.8.0.tar.gz
 GIT_CRYPT_DEPS := lib/openssl
 
 $(eval $(call DOWNLOAD_SOURCE,web/git-crypt,$(GIT_CRYPT_SRC)))
