@@ -1,5 +1,7 @@
 
-XZ_SRC := https://github.com/tukaani-project/xz/releases/download/v5.4.3/xz-5.4.3.tar.gz
+# Debian 13 (trixie/stable) xz-utils 5.8.1 orig tarball.
+# Same sha256 as tukaani.org and Debian pool; GitHub Releases host.
+XZ_SRC := https://github.com/tukaani-project/xz/releases/download/v5.8.1/xz-5.8.1.tar.xz
 
 $(eval $(call DOWNLOAD_SOURCE,compress/xz,$(XZ_SRC)))
 
