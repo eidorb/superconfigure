@@ -1,0 +1,19 @@
+YAML_CPP_SRC := https://github.com/jbeder/yaml-cpp/archive/refs/tags/0.8.0.tar.gz
+
+YAML_CPP_CONFIG_ARGS = -DCMAKE_INSTALL_PREFIX=$$(COSMOS)\
+    -DCMAKE_PREFIX_PATH=$$(COSMOS)\
+    -DCMAKE_IGNORE_PREFIX_PATH="/usr/;/usr/include"\
+    -DBUILD_SHARED_LIBS=OFF\
+    -DCMAKE_BUILD_TYPE=Release\
+    -DCMAKE_C_FLAGS="-Os"\
+    -DCMAKE_CXX_FLAGS="-Os"\
+    -DYAML_BUILD_SHARED_LIBS=OFF\
+    -DYAML_CPP_BUILD_TESTS=OFF\
+    -DYAML_CPP_BUILD_TOOLS=OFF\
+    -DYAML_CPP_FORMAT_SOURCE=OFF\
+    -DYAML_CPP_INSTALL=ON
+
+$(eval $(call DOWNLOAD_SOURCE,lib/yaml-cpp,$(YAML_CPP_SRC)))
+$(eval $(call CMAKE_BUILD,lib/yaml-cpp,$(YAML_CPP_CONFIG_ARGS),$(YAML_CPP_CONFIG_ARGS)))
+
+o/lib/yaml-cpp/built.fat: FATTEN_COMMAND = $(DUMMYLINK0)

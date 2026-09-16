@@ -1,0 +1,133 @@
+--- mamba-2.9.0/libmamba/CMakeLists.txt
++++ mamba-2.9.0/libmamba/CMakeLists.txt
+@@ -513,11 +513,6 @@
+                 libcurl.a
+                 libpsl.a
+                 libssh2.a
+-                libgssapi_krb5.a
+-                libkrb5.a
+-                libk5crypto.a
+-                libkrb5support.a
+-                libcom_err.a
+                 libssl.a
+                 libcrypto.a
+                 libarchive.a
+@@ -529,6 +524,12 @@
+                 liblzma.a
+                 libnghttp2.a
+                 libmsgpack-c.a
++                libbrotlidec.a
++                libbrotlienc.a
++                libbrotlicommon.a
++                libexpat.a
++                libpcre2-posix.a
++                libpcre2-8.a
+             )
+             if(APPLE)
+                 set(REQUIRED_STATIC_DEPS ${REQUIRED_STATIC_DEPS} libc++.a)
+@@ -572,8 +573,7 @@
+                 set(MAMBA_FORCE_DYNAMIC_LIBS resolv c++abi)
+                 target_link_options(${target_name} PRIVATE -nostdlib++)
+             elseif(UNIX)
+-                set(MAMBA_FORCE_DYNAMIC_LIBS rt dl resolv)
+-                target_link_options(${target_name} PUBLIC -static-libstdc++ -static-libgcc)
++                set(MAMBA_FORCE_DYNAMIC_LIBS resolv)
+             endif()
+ 
+             target_link_libraries(${target_name} PUBLIC ${STATIC_DEPS} ${MAMBA_FORCE_DYNAMIC_LIBS})
+--- mamba-2.9.0/libmamba/include/mamba/util/build.hpp
++++ mamba-2.9.0/libmamba/include/mamba/util/build.hpp
+@@ -13,7 +13,7 @@
+     inline static constexpr bool on_win = false;
+     inline static constexpr bool on_linux = false;
+     inline static constexpr bool on_mac = true;
+-#elif __linux__
++#elif defined(__linux__) || defined(__COSMOPOLITAN__)
+     inline static constexpr bool on_win = false;
+     inline static constexpr bool on_linux = true;
+     inline static constexpr bool on_mac = false;
+--- mamba-2.9.0/libmamba/src/core/logging.cpp
++++ mamba-2.9.0/libmamba/src/core/logging.cpp
+@@ -27,7 +27,7 @@
+     namespace details
+     {
+         // see singletons.cpp
+-#if defined(__APPLE__)
++#if defined(__APPLE__) || defined(__COSMOPOLITAN__)
+         using params_mutex = std::mutex;
+ #else
+         using params_mutex = std::shared_mutex;
+--- mamba-2.9.0/libmamba/src/core/singletons.cpp
++++ mamba-2.9.0/libmamba/src/core/singletons.cpp
+@@ -44,7 +44,7 @@
+         // dont accept `constinit` here, so until this is fixed we'll lose performance using
+         // `std::mutex` when we mostly are reading data, not modifying,
+         // but at least we maintain correctness and avoid static-init fiasco.
+-#if defined(__APPLE__)
++#if defined(__APPLE__) || defined(__COSMOPOLITAN__)
+         using params_mutex = std::mutex;
+ #else
+         using params_mutex = std::shared_mutex;
+--- mamba-2.9.0/libmamba/src/core/thread_utils.cpp
++++ mamba-2.9.0/libmamba/src/core/thread_utils.cpp
+@@ -8,7 +8,7 @@
+ #include <limits>
+ #include <thread>
+ 
+-#if defined(__linux__)
++#if defined(__linux__) || defined(__COSMOPOLITAN__)
+ #include <sched.h>
+ #endif
+ 
+@@ -172,7 +172,7 @@
+     {
+         std::size_t affinity_concurrency()
+         {
+-#if defined(__linux__)
++#if defined(__linux__) || defined(__COSMOPOLITAN__)
+             cpu_set_t set;
+             CPU_ZERO(&set);
+             if (sched_getaffinity(0, sizeof(set), &set) == 0)
+--- mamba-2.9.0/libmamba/src/core/util.cpp
++++ mamba-2.9.0/libmamba/src/core/util.cpp
+@@ -25,7 +25,7 @@
+ #include <iomanip>
+ #endif
+ 
+-#if defined(__APPLE__) || defined(__linux__)
++#if defined(__APPLE__) || defined(__linux__) || defined(__COSMOPOLITAN__)
+ #include <fcntl.h>
+ #include <pthread.h>
+ #include <stdio.h>
+--- mamba-2.9.0/libmamba/src/core/util_os.cpp
++++ mamba-2.9.0/libmamba/src/core/util_os.cpp
+@@ -127,6 +127,9 @@
+             );
+         }
+         return get_hmodule_path(hModule);
++#elif defined(__COSMOPOLITAN__)
++        // cosmocc 3.9.2 has no dladdr; libmamba is statically linked into the APE.
++        return get_self_exe_path();
+ #else
+         fs::u8path libmamba_path;
+         Dl_info dl_info;
+@@ -586,7 +589,7 @@
+ 
+         return ret;
+     }
+-#elif defined(__linux__)
++#elif defined(__linux__) || defined(__COSMOPOLITAN__)
+     std::string get_process_name_by_pid(const int pid)
+     {
+         std::ifstream f(util::concat("/proc/", std::to_string(pid), "/status"));
+--- mamba-2.9.0/libmamba/src/specs/platform.cpp
++++ mamba-2.9.0/libmamba/src/specs/platform.cpp
+@@ -88,7 +88,7 @@
+      */
+     auto build_platform() -> KnownPlatform
+     {
+-#if defined(__linux__)
++#if defined(__linux__) || defined(__COSMOPOLITAN__)
+ #if __x86_64__
+         return KnownPlatform::linux_64;
+ #elif defined(i386)

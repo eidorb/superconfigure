@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+SRC=$(echo "$BASELOC"/o/lib/cli11/CLI11-*)
+
+cmake -G Ninja "$SRC" \
+    -DCMAKE_INSTALL_PREFIX="$COSMOS" \
+    -DCMAKE_PREFIX_PATH="$COSMOS" \
+    -DCMAKE_IGNORE_PREFIX_PATH="/usr/;/usr/include" \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_CXX_FLAGS="-Os" \
+    -DCLI11_PRECOMPILED=OFF \
+    -DCLI11_BUILD_DOCS=OFF \
+    -DCLI11_BUILD_TESTS=OFF \
+    -DCLI11_BUILD_EXAMPLES=OFF \
+    -DCLI11_INSTALL=ON

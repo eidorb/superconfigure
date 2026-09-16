@@ -15,6 +15,7 @@ include cli/grep/BUILD.mk
 include cli/jq/BUILD.mk
 include cli/less/BUILD.mk
 include cli/make/BUILD.mk
+include cli/micromamba/BUILD.mk
 include cli/nasm/BUILD.mk
 include cli/ninja/BUILD.mk
 include cli/patch/BUILD.mk

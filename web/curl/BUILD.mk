@@ -2,7 +2,7 @@
 CURL_SRC := https://github.com/curl/curl/releases/download/curl-8_10_1/curl-8.10.1.tar.gz
 
 CURL_DEPS := \
-	lib/openssl lib/libssh2 lib/libpsl \
+	lib/openssl lib/libssh2 lib/libpsl lib/nghttp2 \
 	compress/brotli \
 	cosmo-repo/compress cosmo-repo/base
 

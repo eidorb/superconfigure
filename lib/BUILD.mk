@@ -1,9 +1,12 @@
 
 include lib/alsa/BUILD.mk
 include lib/certs/BUILD.mk
+include lib/cli11/BUILD.mk
 include lib/cups/BUILD.mk
-include lib/fontconfig/BUILD.mk
+include lib/expected/BUILD.mk
 include lib/flac/BUILD.mk
+include lib/fmt/BUILD.mk
+include lib/fontconfig/BUILD.mk
 include lib/freetype/BUILD.mk
 include lib/fribidi/BUILD.mk
 include lib/gdbm/BUILD.mk
@@ -12,6 +15,7 @@ include lib/gmp/BUILD.mk
 include lib/gnutls/BUILD.mk
 include lib/isl/BUILD.mk
 include lib/jansson/BUILD.mk
+include lib/json/BUILD.mk
 include lib/lame/BUILD.mk
 include lib/leptonica/BUILD.mk
 include lib/libassuan/BUILD.mk
@@ -28,6 +32,7 @@ include lib/libogg/BUILD.mk
 include lib/libpng/BUILD.mk
 include lib/libpsl/BUILD.mk
 include lib/libsodium/BUILD.mk
+include lib/libsolv/BUILD.mk
 include lib/libssh2/BUILD.mk
 include lib/libtiff/BUILD.mk
 include lib/libunistring/BUILD.mk
@@ -39,14 +44,20 @@ include lib/libxslt/BUILD.mk
 include lib/libyaml/BUILD.mk
 include lib/mpc/BUILD.mk
 include lib/mpfr/BUILD.mk
+include lib/msgpack-c/BUILD.mk
 include lib/ncurses/BUILD.mk
 include lib/nettle/BUILD.mk
+include lib/nghttp2/BUILD.mk
 include lib/npth/BUILD.mk
 include lib/oniguruma/BUILD.mk
 include lib/openssl/BUILD.mk
 include lib/pcre/BUILD.mk
 include lib/pinentry/BUILD.mk
 include lib/readline/BUILD.mk
+include lib/reproc/BUILD.mk
+include lib/simdjson/BUILD.mk
+include lib/spdlog/BUILD.mk
+include lib/yaml-cpp/BUILD.mk
 
 lib:\
 	o/lib/freetype/built.fat\

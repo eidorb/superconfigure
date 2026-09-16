@@ -9,6 +9,7 @@ include compress/lzlib/BUILD.mk
 include compress/lzip/BUILD.mk
 include compress/pigz/BUILD.mk
 include compress/tar/BUILD.mk
+include compress/xz/BUILD.mk
 
 compress: \
 	o/cosmo-repo/compress/built.fat\

@@ -1,0 +1,33 @@
+#!/bin/sh
+set -e
+
+SRC=$(echo "$BASELOC"/o/cli/micromamba/mamba-*)
+
+# Cosmopolitan float.h includes math.h; if <cfloat> is seen before <cmath>,
+# libcxx's cmath/math.h using-declarations fail (signbit/isnan/isinf).
+# Force <cmath> first for every translation unit.
+#
+# SPDLOG_FMT_EXTERNAL: our spdlog recipe is built against standalone fmt,
+# not the bundled copy. libmamba includes spdlog headers without linking
+# the spdlog CMake target, so the define must be on the command line too.
+cmake -G Ninja "$SRC" \
+    -DCMAKE_INSTALL_PREFIX="$COSMOS" \
+    -DCMAKE_PREFIX_PATH="$COSMOS" \
+    -DCMAKE_IGNORE_PREFIX_PATH="/usr/;/usr/include" \
+    -DCMAKE_FIND_ROOT_PATH="$COSMOS" \
+    -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
+    -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
+    -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY \
+    -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DBUILD_LIBMAMBA=ON \
+    -DBUILD_LIBMAMBA_SPDLOG=ON \
+    -DBUILD_STATIC=ON \
+    -DBUILD_MICROMAMBA=ON \
+    -DBUILD_LIBMAMBA_TESTS=OFF \
+    -DBUILD_LIBMAMBAPY=OFF \
+    -DMAMBA_WARNING_AS_ERROR=OFF \
+    -DMAMBA_LTO=OFF \
+    -DCMAKE_C_FLAGS="-Os" \
+    -DCMAKE_CXX_FLAGS="-Os -include cmath -DSPDLOG_FMT_EXTERNAL"

@@ -1,0 +1,84 @@
+--- reproc-14.2.5/reproc/include/reproc/reproc.h
++++ reproc-14.2.5/reproc/include/reproc/reproc.h
+@@ -19,16 +19,16 @@
+ /*! reproc error naming follows POSIX errno naming prefixed with `REPROC`. */
+ 
+ /*! An invalid argument was passed to an API function */
+-REPROC_EXPORT extern const int REPROC_EINVAL;
++REPROC_EXPORT extern int REPROC_EINVAL;
+ /*! A timeout value passed to an API function expired. */
+-REPROC_EXPORT extern const int REPROC_ETIMEDOUT;
++REPROC_EXPORT extern int REPROC_ETIMEDOUT;
+ /*! The child process closed one of its streams (and in the case of
+ stdout/stderr all of the data remaining in that stream has been read). */
+-REPROC_EXPORT extern const int REPROC_EPIPE;
++REPROC_EXPORT extern int REPROC_EPIPE;
+ /*! A memory allocation failed. */
+-REPROC_EXPORT extern const int REPROC_ENOMEM;
++REPROC_EXPORT extern int REPROC_ENOMEM;
+ /*! A call to `reproc_read` or `reproc_write` would have blocked. */
+-REPROC_EXPORT extern const int REPROC_EWOULDBLOCK;
++REPROC_EXPORT extern int REPROC_EWOULDBLOCK;
+ 
+ /*! Signal exit status constants. */
+ 
+--- reproc-14.2.5/reproc/src/error.posix.c
++++ reproc-14.2.5/reproc/src/error.posix.c
+@@ -11,11 +11,20 @@
+ 
+ #include "macro.h"
+ 
+-const int REPROC_EINVAL = -EINVAL;
+-const int REPROC_EPIPE = -EPIPE;
+-const int REPROC_ETIMEDOUT = -ETIMEDOUT;
+-const int REPROC_ENOMEM = -ENOMEM;
+-const int REPROC_EWOULDBLOCK = -EWOULDBLOCK;
++int REPROC_EINVAL;
++int REPROC_EPIPE;
++int REPROC_ETIMEDOUT;
++int REPROC_ENOMEM;
++int REPROC_EWOULDBLOCK;
++
++__attribute__((constructor)) static void reproc_init_errors(void)
++{
++  REPROC_EINVAL = -EINVAL;
++  REPROC_EPIPE = -EPIPE;
++  REPROC_ETIMEDOUT = -ETIMEDOUT;
++  REPROC_ENOMEM = -ENOMEM;
++  REPROC_EWOULDBLOCK = -EWOULDBLOCK;
++}
+ 
+ enum { ERROR_STRING_MAX_SIZE = 512 };
+ 
+--- reproc-14.2.5/reproc/src/pipe.posix.c
++++ reproc-14.2.5/reproc/src/pipe.posix.c
+@@ -14,8 +14,14 @@
+ 
+ const int PIPE_INVALID = -1;
+ 
+-const short PIPE_EVENT_IN = POLLIN;
+-const short PIPE_EVENT_OUT = POLLOUT;
++short PIPE_EVENT_IN;
++short PIPE_EVENT_OUT;
++
++__attribute__((constructor)) static void reproc_init_pipe_events(void)
++{
++  PIPE_EVENT_IN = POLLIN;
++  PIPE_EVENT_OUT = POLLOUT;
++}
+ 
+ int pipe_init(int *read, int *write)
+ {
+--- reproc-14.2.5/reproc/src/pipe.h
++++ reproc-14.2.5/reproc/src/pipe.h
+@@ -14,8 +14,8 @@
+ 
+ extern const pipe_type PIPE_INVALID;
+ 
+-extern const short PIPE_EVENT_IN;
+-extern const short PIPE_EVENT_OUT;
++extern short PIPE_EVENT_IN;
++extern short PIPE_EVENT_OUT;
+ 
+ typedef struct {
+   pipe_type pipe;
