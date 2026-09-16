@@ -8,7 +8,9 @@ Verified here:
 - `--version` → `2.9.0` on x86_64, aarch64/qemu, and the fat APE
 - `info` reports OpenSSL 3.6.2, curl 8.10.1, libarchive 3.8.0, nghttp2, brotli, zstd
 - `search xz -c conda-forge` succeeds (TLS + solver) on the fat binary
-- conda platform is forced to `linux-64` / `linux-aarch64` via `__COSMOPOLITAN__` in `specs/platform.cpp`
+- conda platform is **runtime**: Cosmopolitan `IsLinux()` / `IsXnu()` / `IsWindows()` pick
+  `linux-*` / `osx-*` / `win-*`; arch follows the running APE slice (`x86_64` vs `aarch64`).
+  Override with `CONDA_SUBDIR` / `MAMBA_PLATFORM` as usual.
 
 ## krb5 / GSSAPI — intentionally omitted
 
@@ -27,11 +29,13 @@ To match official static micromamba later: port MIT krb5, rebuild curl `--with-g
 
 ## Other Cosmopolitan patches in `minimal.diff`
 
-- Treat `__COSMOPOLITAN__` as Linux (`on_linux`, `/proc`, `sched_getaffinity`, `linux-64`)
+- Runtime host OS via APE `__hostos` (`build.hpp` `on_linux`/`on_mac`/`on_win`, `build_platform()`)
+- `if constexpr (util::on_win)` sites switched to runtime `if` (not constexpr on Cosmo)
 - Do not pass `-static-libstdc++ -static-libgcc` (cosmocc)
 - Drop `rt` / `dl` from `MAMBA_FORCE_DYNAMIC_LIBS`
 - `dladdr` is missing in cosmocc 3.9.2 → `get_self_exe_path()`
 - `std::shared_mutex` + constinit hangs in `pthread_delay_np` on Cosmo; both `logging.cpp` and `singletons.cpp` must use `std::mutex` (ODR; mismatch = infinite spin on `--version`)
+- `__glibc` via host `getconf GNU_LIBC_VERSION` (Cosmo `confstr` is empty). Still overridable with `CONDA_OVERRIDE_GLIBC`
 
 ## Dependency recipes added
 
@@ -59,5 +63,5 @@ Without it, curl/nghttp2/xz/etc. `configure` fail looking for a working C compil
 ## Known leftovers
 
 - Fat `micromamba info` may print **ape** as the binary name: `get_self_exe_path().stem()` is `/usr/bin/ape` under binfmt, not `micromamba.com`
-- `__glibc` virtual package is skipped (`confstr(_CS_GNU_LIBC_VERSION)`). Override with `CONDA_OVERRIDE_GLIBC` if a solve needs it
+- `__glibc` virtual package comes from host `getconf GNU_LIBC_VERSION` on Linux. Override with `CONDA_OVERRIDE_GLIBC` if needed.
 - Binaries are unstripped; zip overlay ships CA certs, not `openssl.cnf`. conda-forge TLS still worked

@@ -1,5 +1,5 @@
---- mamba-2.9.0/libmamba/CMakeLists.txt
-+++ mamba-2.9.0/libmamba/CMakeLists.txt
+--- mamba-2.9.0/libmamba/CMakeLists.txt	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/CMakeLists.txt	2026-09-16 07:07:20.860448102 +0000
 @@ -513,11 +513,6 @@
                  libcurl.a
                  libpsl.a
@@ -35,19 +35,104 @@
              endif()
  
              target_link_libraries(${target_name} PUBLIC ${STATIC_DEPS} ${MAMBA_FORCE_DYNAMIC_LIBS})
---- mamba-2.9.0/libmamba/include/mamba/util/build.hpp
-+++ mamba-2.9.0/libmamba/include/mamba/util/build.hpp
-@@ -13,7 +13,7 @@
+--- mamba-2.9.0/libmamba/include/mamba/util/build.hpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/include/mamba/util/build.hpp	2026-09-16 09:27:15.779759411 +0000
+@@ -7,13 +7,29 @@
+ #ifndef MAMBA_UTIL_BUILD_HPP
+ #define MAMBA_UTIL_BUILD_HPP
+ 
++#ifdef __COSMOPOLITAN__
++#ifndef _COSMO_SOURCE
++#define _COSMO_SOURCE
++#endif
++#include <libc/dce.h>
++#endif
++
+ namespace mamba::util
+ {
+-#if __APPLE__ || __MACH__
++#ifdef __COSMOPOLITAN__
++    // APE __hostos is set before C++ constructors. Not constexpr: Cosmopolitan
++    // is one binary on Linux / XNU / NT, and conda packages are native to the
++    // *host*. BSD has no conda-forge subdir and is treated as Linux.
++    //
++    // Callers that used `if constexpr (util::on_win)` are patched to `if`.
++    inline const bool on_win = static_cast<bool>(IsWindows());
++    inline const bool on_mac = static_cast<bool>(IsXnu());
++    inline const bool on_linux = !on_win && !on_mac;
++#elif __APPLE__ || __MACH__
      inline static constexpr bool on_win = false;
      inline static constexpr bool on_linux = false;
      inline static constexpr bool on_mac = true;
 -#elif __linux__
-+#elif defined(__linux__) || defined(__COSMOPOLITAN__)
++#elif defined(__linux__)
      inline static constexpr bool on_win = false;
      inline static constexpr bool on_linux = true;
      inline static constexpr bool on_mac = false;
---- mamba-2.9.0/libmamba/src/core/logging.cpp
-+++ mamba-2.9.0/libmamba/src/core/logging.cpp
+--- mamba-2.9.0/libmamba/src/api/configuration.cpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/src/api/configuration.cpp	2026-09-16 09:28:05.759761574 +0000
+@@ -2145,7 +2145,7 @@
+     Configuration::compute_default_rc_sources(const Context& context, const RCConfigLevel& level)
+     {
+         std::vector<fs::u8path> system;
+-        if constexpr (util::on_mac || util::on_linux)
++        if (util::on_mac || util::on_linux)
+         {
+             system = { "/etc/conda/.condarc",       "/etc/conda/condarc",
+                        "/etc/conda/condarc.d/",     "/etc/conda/.mambarc",
+--- mamba-2.9.0/libmamba/src/core/channel_context.cpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/src/core/channel_context.cpp	2026-09-16 09:28:13.587761912 +0000
+@@ -114,11 +114,22 @@
+ 
+             // Hard coded Anaconda channels names.
+             // This will not redefine them if the user has already defined these keys.
+-            for (const auto& [name, location] : conda_custom_channels<util::on_win>())
++            auto add_anaconda_defaults = [&](const auto& channels)
+             {
+-                auto chan = make_unique_chan(location, params);
+-                chan.set_display_name(std::string(name));
+-                params.custom_channels.emplace(name, std::move(chan));
++                for (const auto& [name, location] : channels)
++                {
++                    auto chan = make_unique_chan(location, params);
++                    chan.set_display_name(std::string(name));
++                    params.custom_channels.emplace(name, std::move(chan));
++                }
++            };
++            if (util::on_win)
++            {
++                add_anaconda_defaults(conda_custom_channels<true>());
++            }
++            else
++            {
++                add_anaconda_defaults(conda_custom_channels<false>());
+             }
+         }
+ 
+--- mamba-2.9.0/libmamba/src/core/link.cpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/src/core/link.cpp	2026-09-16 09:28:09.071761717 +0000
+@@ -1010,7 +1010,7 @@
+                 buffer = read_contents(src, std::ios::in | std::ios::binary);
+                 util::replace_all(buffer, path_data.prefix_placeholder, new_prefix);
+ 
+-                if constexpr (!util::on_win)  // only on non-windows platforms
++                if (!util::on_win)  // only on non-windows platforms
+                 {
+                     // we need to check the first line for a shebang and replace it if it's too long
+                     if (buffer[0] == '#' && buffer[1] == '!')
+--- mamba-2.9.0/libmamba/src/core/link.hpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/src/core/link.hpp	2026-09-16 09:28:08.035761672 +0000
+@@ -44,7 +44,7 @@
+     );  // the rest of the line can contain option
+         // flags and end whole_shebang group
+ 
+-    constexpr std::size_t MAX_SHEBANG_LENGTH = util::on_linux ? 127 : 512;
++    inline const std::size_t MAX_SHEBANG_LENGTH = util::on_linux ? 127 : 512;
+ 
+     struct python_entry_point_parsed
+     {
+--- mamba-2.9.0/libmamba/src/core/logging.cpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/src/core/logging.cpp	2026-09-16 07:15:04.072468143 +0000
 @@ -27,7 +27,7 @@
      namespace details
      {
@@ -57,8 +142,8 @@
          using params_mutex = std::mutex;
  #else
          using params_mutex = std::shared_mutex;
---- mamba-2.9.0/libmamba/src/core/singletons.cpp
-+++ mamba-2.9.0/libmamba/src/core/singletons.cpp
+--- mamba-2.9.0/libmamba/src/core/singletons.cpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/src/core/singletons.cpp	2026-09-16 06:39:12.744375065 +0000
 @@ -44,7 +44,7 @@
          // dont accept `constinit` here, so until this is fixed we'll lose performance using
          // `std::mutex` when we mostly are reading data, not modifying,
@@ -68,8 +153,8 @@
          using params_mutex = std::mutex;
  #else
          using params_mutex = std::shared_mutex;
---- mamba-2.9.0/libmamba/src/core/thread_utils.cpp
-+++ mamba-2.9.0/libmamba/src/core/thread_utils.cpp
+--- mamba-2.9.0/libmamba/src/core/thread_utils.cpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/src/core/thread_utils.cpp	2026-09-16 06:14:16.536310332 +0000
 @@ -8,7 +8,7 @@
  #include <limits>
  #include <thread>
@@ -88,8 +173,8 @@
              cpu_set_t set;
              CPU_ZERO(&set);
              if (sched_getaffinity(0, sizeof(set), &set) == 0)
---- mamba-2.9.0/libmamba/src/core/util.cpp
-+++ mamba-2.9.0/libmamba/src/core/util.cpp
+--- mamba-2.9.0/libmamba/src/core/util.cpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/src/core/util.cpp	2026-09-16 06:14:16.536310332 +0000
 @@ -25,7 +25,7 @@
  #include <iomanip>
  #endif
@@ -99,8 +184,8 @@
  #include <fcntl.h>
  #include <pthread.h>
  #include <stdio.h>
---- mamba-2.9.0/libmamba/src/core/util_os.cpp
-+++ mamba-2.9.0/libmamba/src/core/util_os.cpp
+--- mamba-2.9.0/libmamba/src/core/util_os.cpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/src/core/util_os.cpp	2026-09-16 06:43:51.436387123 +0000
 @@ -127,6 +127,9 @@
              );
          }
@@ -120,14 +205,134 @@
      std::string get_process_name_by_pid(const int pid)
      {
          std::ifstream f(util::concat("/proc/", std::to_string(pid), "/status"));
---- mamba-2.9.0/libmamba/src/specs/platform.cpp
-+++ mamba-2.9.0/libmamba/src/specs/platform.cpp
-@@ -88,7 +88,7 @@
+--- mamba-2.9.0/libmamba/src/core/virtual_packages.cpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/src/core/virtual_packages.cpp	2026-09-16 09:28:18.835762139 +0000
+@@ -43,6 +43,7 @@
+             }
+ 
+             const char* version = "";
++            std::string version_storage;
+ #ifdef __linux__
+             std::vector<char> ver;
+             const size_t n = confstr(_CS_GNU_LIBC_VERSION, NULL, size_t{ 0 });
+@@ -54,6 +55,26 @@
+                 version = ver.data();
+             }
+ #endif
++#ifdef __COSMOPOLITAN__
++            // Cosmopolitan does not implement confstr(_CS_GNU_LIBC_VERSION).
++            // Spawn the host getconf so linux-* solves see a real glibc.
++            if (!version || !*version)
++            {
++                std::string out, err;
++                std::vector<std::string> args = { "getconf", "GNU_LIBC_VERSION" };
++                auto [status, ec] = reproc::run(
++                    args,
++                    reproc::options{},
++                    reproc::sink::string(out),
++                    reproc::sink::string(err)
++                );
++                if (!ec)
++                {
++                    version_storage = util::strip(out);
++                    version = version_storage.c_str();
++                }
++            }
++#endif
+             return std::string(util::strip(version, "glibc "));
+         }
+ 
+--- mamba-2.9.0/libmamba/src/specs/platform.cpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/src/specs/platform.cpp	2026-09-16 09:28:00.555761348 +0000
+@@ -12,6 +12,13 @@
+ #include "mamba/specs/platform.hpp"
+ #include "mamba/util/string.hpp"
+ 
++#ifdef __COSMOPOLITAN__
++#ifndef _COSMO_SOURCE
++#define _COSMO_SOURCE
++#endif
++#include <libc/dce.h>
++#endif
++
+ namespace mamba::specs
+ {
+     auto platform_parse(std::string_view str) -> std::optional<KnownPlatform>
+@@ -85,10 +92,38 @@
+ 
+     /**
+      * Detect the platform on which mamba was built.
++     *
++     * Cosmopolitan APEs resolve the *host* OS at load time so a single fat
++     * binary can manage linux-*, osx-*, or win-* conda-forge packages.
++     * Architecture still follows the running slice (x86_64 vs aarch64).
       */
      auto build_platform() -> KnownPlatform
      {
 -#if defined(__linux__)
-+#if defined(__linux__) || defined(__COSMOPOLITAN__)
++#ifdef __COSMOPOLITAN__
++#if defined(__aarch64__)
++        if (IsXnu())
++        {
++            return KnownPlatform::osx_arm64;
++        }
++        if (IsWindows())
++        {
++            return KnownPlatform::win_arm64;
++        }
++        return KnownPlatform::linux_aarch64;
++#elif defined(__x86_64__)
++        if (IsWindows())
++        {
++            return KnownPlatform::win_64;
++        }
++        if (IsXnu())
++        {
++            return KnownPlatform::osx_64;
++        }
++        return KnownPlatform::linux_64;
++#else
++#error "Unknown Cosmopolitan architecture"
++#endif
++#elif defined(__linux__)
  #if __x86_64__
          return KnownPlatform::linux_64;
  #elif defined(i386)
+--- mamba-2.9.0/libmamba/src/util/environment.cpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/src/util/environment.cpp	2026-09-16 09:28:06.635761612 +0000
+@@ -385,7 +385,7 @@
+                     return false;
+                 }
+ 
+-                if constexpr (util::on_win)
++                if (util::on_win)
+                 {
+                     return true;
+                 }
+--- mamba-2.9.0/libmamba/src/util/url_manip.cpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/libmamba/src/util/url_manip.cpp	2026-09-16 09:28:09.879761752 +0000
+@@ -106,7 +106,7 @@
+         // when followed with a drive letter
+         // to make it compatible with libcurl on unix
+         auto [is_file_scheme, slashes, rest] = check_file_scheme_and_slashes(uri);
+-        if constexpr (!on_win)
++        if (!on_win)
+         {
+             if (is_file_scheme && path_has_drive_letter(rest)
+                 && ((slashes.size() == 2) || (slashes.size() == 3)))
+--- mamba-2.9.0/micromamba/src/shell.cpp	2026-08-07 07:53:01.000000000 +0000
++++ mamba-2.9.0/micromamba/src/shell.cpp	2026-09-16 09:28:04.727761529 +0000
+@@ -351,11 +351,11 @@
+ 
+                     const auto get_shell = []() -> std::string
+                     {
+-                        if constexpr (util::on_win)
++                        if (util::on_win)
+                         {
+                             return util::get_env("SHELL").value_or("cmd.exe");
+                         }
+-                        else if constexpr (util::on_mac)
++                        else if (util::on_mac)
+                         {
+                             return util::get_env("SHELL").value_or("zsh");
+                         }
