@@ -1,0 +1,72 @@
+#!/bin/sh -e
+# cosmocc 4.0.2: Windows MODE=tiny is fixed; Sokol NT IAT still incomplete
+# so nt_imports.c GetProcAddress-fills the gap.
+
+COSMOCC_BIN=${COSMOCC_BIN:-/workspace/cosmocc-4.0.2/bin}
+export PATH="$COSMOCC_BIN:$PATH"
+
+if ! command -v cosmocc >/dev/null; then
+	echo "cosmocc 4.0.2 not found at $COSMOCC_BIN"
+	exit 1
+fi
+
+COSMO_HOME=$(dirname $(dirname $(which cosmocc)))
+ZIPOBJ=$(which zipobj)
+
+FLAGS="-I. \
+	-I deps/sokol \
+	-I deps/cimgui \
+	-mcosmo \
+	-mtiny \
+	-Wall \
+	-Wno-format-truncation"
+
+LINUX_FLAGS="${FLAGS} -Ishims/linux"
+WIN32_FLAGS="${FLAGS} -Ishims/win32 -I ${COSMO_HOME}/include/libc/nt -Wno-implicit-function-declaration -Wno-error"
+
+mkdir -p .build .build/.aarch64 bin
+rm -f .build/commands
+
+compile() {
+	echo scripts/compile "$@" >> .build/commands
+}
+
+compile shims/sokol/sokol_windows.c ${WIN32_FLAGS}
+compile shims/sokol/sokol_linux.c ${LINUX_FLAGS}
+compile shims/sokol/sokol_shared.c ${FLAGS}
+compile shims/sokol/sokol_cosmo.c ${FLAGS}
+
+compile deps/cimgui/cimgui.cpp ${FLAGS}
+compile deps/cimgui/imgui/imgui.cpp ${FLAGS}
+compile deps/cimgui/imgui/imgui_demo.cpp ${FLAGS}
+compile deps/cimgui/imgui/imgui_draw.cpp ${FLAGS}
+compile deps/cimgui/imgui/imgui_tables.cpp ${FLAGS}
+compile deps/cimgui/imgui/imgui_widgets.cpp ${FLAGS}
+
+compile shims/linux/gl.c ${LINUX_FLAGS}
+compile shims/linux/x11.c ${LINUX_FLAGS}
+
+compile nvapi/nvapi.c ${WIN32_FLAGS}
+compile win32_tweaks.c ${WIN32_FLAGS}
+compile nt_imports.c ${FLAGS}
+
+compile deps.c ${FLAGS}
+compile main.c ${FLAGS} -Invapi
+
+while read -r line; do
+	sh -c "$line"
+done < .build/commands
+
+# embed conda-forge linux-64 X11/GL next to the APE via zipobj (both arches)
+if [ -d vendor/linux-64/lib ]; then
+	mkdir -p .build/.aarch64
+	(cd vendor && $ZIPOBJ -a x86_64 -o ../.build/payload.zip.o linux-64/lib/*)
+	(cd vendor && $ZIPOBJ -a aarch64 -o ../.build/.aarch64/payload.zip.o linux-64/lib/*)
+	PAYLOAD=".build/payload.zip.o"
+else
+	PAYLOAD=""
+fi
+
+objects=$(find .build -name '*.o' -not -path '*.aarch64/*' -not -name 'payload.zip.o')
+cosmoc++ ${FLAGS} -o bin/cosmo-sokol-mamba.com $objects $PAYLOAD
+echo "built bin/cosmo-sokol-mamba.com ($(cosmocc --version | head -1))"
