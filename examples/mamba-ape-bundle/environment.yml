@@ -1,0 +1,7 @@
+# Host-native libraries the APE will extract next to itself and dlopen.
+# Same spec for every conda-forge subdir; micromamba --dry-run locks each one.
+name: ape-host-libs
+channels:
+  - conda-forge
+dependencies:
+  - zlib
