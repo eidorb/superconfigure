@@ -1,3 +1,4 @@
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/CMakeLists.txt /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/CMakeLists.txt
 --- mamba-2.9.0/libmamba/CMakeLists.txt	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/CMakeLists.txt	2026-09-16 07:07:20.860448102 +0000
 @@ -513,11 +513,6 @@
@@ -35,6 +36,7 @@
              endif()
  
              target_link_libraries(${target_name} PUBLIC ${STATIC_DEPS} ${MAMBA_FORCE_DYNAMIC_LIBS})
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/include/mamba/util/build.hpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/include/mamba/util/build.hpp
 --- mamba-2.9.0/libmamba/include/mamba/util/build.hpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/include/mamba/util/build.hpp	2026-09-16 09:27:15.779759411 +0000
 @@ -7,13 +7,29 @@
@@ -69,6 +71,7 @@
      inline static constexpr bool on_win = false;
      inline static constexpr bool on_linux = true;
      inline static constexpr bool on_mac = false;
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/src/api/configuration.cpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/src/api/configuration.cpp
 --- mamba-2.9.0/libmamba/src/api/configuration.cpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/src/api/configuration.cpp	2026-09-16 09:28:05.759761574 +0000
 @@ -2145,7 +2145,7 @@
@@ -80,6 +83,7 @@
          {
              system = { "/etc/conda/.condarc",       "/etc/conda/condarc",
                         "/etc/conda/condarc.d/",     "/etc/conda/.mambarc",
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/src/core/channel_context.cpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/src/core/channel_context.cpp
 --- mamba-2.9.0/libmamba/src/core/channel_context.cpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/src/core/channel_context.cpp	2026-09-16 09:28:13.587761912 +0000
 @@ -114,11 +114,22 @@
@@ -109,6 +113,7 @@
              }
          }
  
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/src/core/link.cpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/src/core/link.cpp
 --- mamba-2.9.0/libmamba/src/core/link.cpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/src/core/link.cpp	2026-09-16 09:28:09.071761717 +0000
 @@ -1010,7 +1010,7 @@
@@ -120,6 +125,7 @@
                  {
                      // we need to check the first line for a shebang and replace it if it's too long
                      if (buffer[0] == '#' && buffer[1] == '!')
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/src/core/link.hpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/src/core/link.hpp
 --- mamba-2.9.0/libmamba/src/core/link.hpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/src/core/link.hpp	2026-09-16 09:28:08.035761672 +0000
 @@ -44,7 +44,7 @@
@@ -131,6 +137,7 @@
  
      struct python_entry_point_parsed
      {
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/src/core/logging.cpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/src/core/logging.cpp
 --- mamba-2.9.0/libmamba/src/core/logging.cpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/src/core/logging.cpp	2026-09-16 07:15:04.072468143 +0000
 @@ -27,7 +27,7 @@
@@ -142,6 +149,7 @@
          using params_mutex = std::mutex;
  #else
          using params_mutex = std::shared_mutex;
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/src/core/singletons.cpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/src/core/singletons.cpp
 --- mamba-2.9.0/libmamba/src/core/singletons.cpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/src/core/singletons.cpp	2026-09-16 06:39:12.744375065 +0000
 @@ -44,7 +44,7 @@
@@ -153,6 +161,7 @@
          using params_mutex = std::mutex;
  #else
          using params_mutex = std::shared_mutex;
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/src/core/thread_utils.cpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/src/core/thread_utils.cpp
 --- mamba-2.9.0/libmamba/src/core/thread_utils.cpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/src/core/thread_utils.cpp	2026-09-16 06:14:16.536310332 +0000
 @@ -8,7 +8,7 @@
@@ -173,6 +182,7 @@
              cpu_set_t set;
              CPU_ZERO(&set);
              if (sched_getaffinity(0, sizeof(set), &set) == 0)
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/src/core/util.cpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/src/core/util.cpp
 --- mamba-2.9.0/libmamba/src/core/util.cpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/src/core/util.cpp	2026-09-16 06:14:16.536310332 +0000
 @@ -25,7 +25,7 @@
@@ -184,6 +194,7 @@
  #include <fcntl.h>
  #include <pthread.h>
  #include <stdio.h>
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/src/core/util_os.cpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/src/core/util_os.cpp
 --- mamba-2.9.0/libmamba/src/core/util_os.cpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/src/core/util_os.cpp	2026-09-16 06:43:51.436387123 +0000
 @@ -127,6 +127,9 @@
@@ -205,6 +216,7 @@
      std::string get_process_name_by_pid(const int pid)
      {
          std::ifstream f(util::concat("/proc/", std::to_string(pid), "/status"));
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/src/core/virtual_packages.cpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/src/core/virtual_packages.cpp
 --- mamba-2.9.0/libmamba/src/core/virtual_packages.cpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/src/core/virtual_packages.cpp	2026-09-16 09:28:18.835762139 +0000
 @@ -43,6 +43,7 @@
@@ -242,9 +254,10 @@
              return std::string(util::strip(version, "glibc "));
          }
  
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/src/specs/platform.cpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/src/specs/platform.cpp
 --- mamba-2.9.0/libmamba/src/specs/platform.cpp	2026-08-07 07:53:01.000000000 +0000
-+++ mamba-2.9.0/libmamba/src/specs/platform.cpp	2026-09-16 09:28:00.555761348 +0000
-@@ -12,6 +12,13 @@
++++ mamba-2.9.0/libmamba/src/specs/platform.cpp	2026-09-17 01:52:29.081797165 +0000
+@@ -12,8 +12,44 @@
  #include "mamba/specs/platform.hpp"
  #include "mamba/util/string.hpp"
  
@@ -253,19 +266,51 @@
 +#define _COSMO_SOURCE
 +#endif
 +#include <libc/dce.h>
++#if defined(__x86_64__)
++#include <cstdint>
++#include <libc/nt/dll.h>
++#endif
 +#endif
 +
  namespace mamba::specs
  {
++#if defined(__COSMOPOLITAN__) && defined(__x86_64__)
++    // x86_64 APE on Windows ARM is Prism/WOW. Native micromamba there
++    // reports win-arm64; delay-load so missing IsWow64Process2 (Win8) is fine.
++    auto windows_host_is_arm64() -> bool
++    {
++        using Wow64Fn = int (*)(intptr_t, uint16_t*, uint16_t*) __attribute__((ms_abi));
++        const auto k32 = GetModuleHandle("kernel32.dll");
++        if (k32 == 0)
++        {
++            return false;
++        }
++        const auto fn = reinterpret_cast<Wow64Fn>(GetProcAddress(k32, "IsWow64Process2"));
++        if (fn == nullptr)
++        {
++            return false;
++        }
++        uint16_t process = 0;
++        uint16_t native = 0;
++        if (!fn(-1, &process, &native))
++        {
++            return false;
++        }
++        return native == 0xAA64;  // IMAGE_FILE_MACHINE_ARM64
++    }
++#endif
      auto platform_parse(std::string_view str) -> std::optional<KnownPlatform>
-@@ -85,10 +92,38 @@
+     {
+         const std::string str_clean = util::to_lower(util::strip(str));
+@@ -85,10 +121,43 @@
  
      /**
       * Detect the platform on which mamba was built.
 +     *
 +     * Cosmopolitan APEs resolve the *host* OS at load time so a single fat
 +     * binary can manage linux-*, osx-*, or win-* conda-forge packages.
-+     * Architecture still follows the running slice (x86_64 vs aarch64).
++     * Architecture follows the running slice, except Windows ARM: the x86_64
++     * slice still advertises win-arm64 (native conda-forge packages).
       */
      auto build_platform() -> KnownPlatform
      {
@@ -284,6 +329,10 @@
 +#elif defined(__x86_64__)
 +        if (IsWindows())
 +        {
++            if (windows_host_is_arm64())
++            {
++                return KnownPlatform::win_arm64;
++            }
 +            return KnownPlatform::win_64;
 +        }
 +        if (IsXnu())
@@ -298,6 +347,7 @@
  #if __x86_64__
          return KnownPlatform::linux_64;
  #elif defined(i386)
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/src/util/environment.cpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/src/util/environment.cpp
 --- mamba-2.9.0/libmamba/src/util/environment.cpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/src/util/environment.cpp	2026-09-16 09:28:06.635761612 +0000
 @@ -385,7 +385,7 @@
@@ -309,6 +359,7 @@
                  {
                      return true;
                  }
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/libmamba/src/util/url_manip.cpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/libmamba/src/util/url_manip.cpp
 --- mamba-2.9.0/libmamba/src/util/url_manip.cpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/libmamba/src/util/url_manip.cpp	2026-09-16 09:28:09.879761752 +0000
 @@ -106,7 +106,7 @@
@@ -320,6 +371,7 @@
          {
              if (is_file_scheme && path_has_drive_letter(rest)
                  && ((slashes.size() == 2) || (slashes.size() == 3)))
+diff -ruN --exclude CMakeFiles --exclude '*.o' --exclude '*.a' --exclude Makefile --exclude cmake_install.cmake --exclude 'CTest*' --exclude Testing --exclude '*.modmap' --exclude '.ninja*' --exclude build.ninja --exclude CMakeCache.txt --exclude '*.cmake' mamba-orig/mamba-2.9.0/micromamba/src/shell.cpp /workspace/superconfigure/o/cli/micromamba/mamba-2.9.0/micromamba/src/shell.cpp
 --- mamba-2.9.0/micromamba/src/shell.cpp	2026-08-07 07:53:01.000000000 +0000
 +++ mamba-2.9.0/micromamba/src/shell.cpp	2026-09-16 09:28:04.727761529 +0000
 @@ -351,11 +351,11 @@

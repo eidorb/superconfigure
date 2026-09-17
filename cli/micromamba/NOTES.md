@@ -9,8 +9,9 @@ Verified here:
 - `info` reports OpenSSL 3.6.2, curl 8.10.1, libarchive 3.8.0, nghttp2, brotli, zstd
 - `search xz -c conda-forge` succeeds (TLS + solver) on the fat binary
 - conda platform is **runtime**: Cosmopolitan `IsLinux()` / `IsXnu()` / `IsWindows()` pick
-  `linux-*` / `osx-*` / `win-*`; arch follows the running APE slice (`x86_64` vs `aarch64`).
-  Override with `CONDA_SUBDIR` / `MAMBA_PLATFORM` as usual.
+  `linux-*` / `osx-*` / `win-*`; arch follows the running APE slice (`x86_64` vs `aarch64`),
+  except Windows ARM: `IsWow64Process2` native machine `0xAA64` → `win-arm64` (same as
+  native micromamba). Override with `CONDA_SUBDIR` / `MAMBA_PLATFORM` as usual.
 
 ## krb5 / GSSAPI — intentionally omitted
 
